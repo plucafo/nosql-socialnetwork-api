@@ -26,11 +26,11 @@ User.find({})
   .exec()
   .then((collection) => {
     if (collection.length === 0) {
-        console.log('Successfully seeded User data!')
       User.insertMany([
         { username: "Admin", email: "admin@gmail.com" },
         { username: "plucafo", email: "phil@gmail.com" },
       ]).catch((err) => console.error(err));
+      console.log("Successfully seeded User data!");
     }
   });
 

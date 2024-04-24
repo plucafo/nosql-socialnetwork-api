@@ -15,7 +15,7 @@ app.get("/all-users", async (req, res) => {
     const result = await User.find({});
     res.status(200).json(result);
   } catch (err) {
-    res.status(500).json({ message: "YOU MESSED UP!" });
+    res.status(500).json({ message: "something went wrong" });
   }
 });
 
