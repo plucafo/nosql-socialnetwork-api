@@ -10,13 +10,24 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // Find all users
-app.get('/all-users', async (req, res) => {
-    try {
-        const result = await User.find({});
-        res.status(200).json(result);
-    } catch (err) {
-        res.status(500).json({ message: 'YOU MESSED UP!' })
-    }
+app.get("/all-users", async (req, res) => {
+  try {
+    const result = await User.find({});
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(500).json({ message: "YOU MESSED UP!" });
+  }
+});
+
+// Find one user
+app.get("/user/:id", async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const result = await User.findOne({ _id: userId });
+    res.status(200).json(result);
+  } catch (err) {
+    console.error(err);
+  }
 });
 
 // Start the server once the database connection is open
