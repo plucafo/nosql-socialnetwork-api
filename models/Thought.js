@@ -19,7 +19,7 @@ const thoughtSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    reactions: [reactionSchema],
+    reactions: [],
 });
 
 const Thought = mongoose.model('Thought', thoughtSchema);
