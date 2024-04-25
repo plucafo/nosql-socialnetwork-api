@@ -122,6 +122,70 @@ app.delete("/api/thoughts/:id", async (req, res) => {
     }
   });
 
+// ************************* REACTION ROUTES ************************
+// Create reaction
+// Create new reaction for a thought
+app.post("/api/thoughts/:thoughtId/reactions", async (req, res) => {
+    try {
+      const { thoughtId } = req.params;
+      const { reactionBody, username } = req.body;
+  
+      // Find the thought by its ID
+      const thought = await Thought.findById(thoughtId);
+  
+      if (!thought) {
+        return res.status(404).json({ message: "Thought not found." });
+      }
+  
+      // Create a new reaction
+      const newReaction = {
+        reactionBody,
+        username,
+      };
+  
+      // Add the new reaction to the thought's reactions array
+      thought.reactions.push(newReaction);
+  
+      // Save the updated thought with the new reaction
+      await thought.save();
+  
+      res.status(201).json(thought); // Return the updated thought with the new reaction
+    } catch (err) {
+      console.error("Error creating reaction:", err);
+      res.status(500).json({ message: "Something went wrong." });
+    }
+  });
+
+// Delete reaction
+app.delete("/api/thoughts/:thoughtId/reactions/:reactionId", async (req, res) => {
+    try {
+        const { thoughtId, reactionId } = req.params;
+
+        // Find the thought by its ID
+        const thought = await Thought.findById(thoughtId);
+
+        if (!thought) {
+            return res.status(404).json({ message: "Thought not found." });
+        }
+
+        // Find the index of the reaction within the thought's reactions array
+        const reactionIndex = thought.reactions.findIndex(reaction => reaction.reactionId.toString() === reactionId);
+
+        if (reactionIndex === -1) {
+            return res.status(404).json({ message: "Reaction not found." });
+        }
+
+        // Remove the reaction at the found index from the thought's reactions array
+        thought.reactions.splice(reactionIndex, 1);
+        await thought.save();
+
+        res.status(200).json({ message: "Reaction deleted successfully." });
+    } catch (err) {
+        console.error("Error deleting reaction:", err);
+        res.status(500).json({ message: "Something went wrong." });
+    }
+});
+  
 // Start the server once the database connection is open
 db.once("open", () => {
   app.listen(PORT, () => {
