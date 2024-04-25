@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const { Schema } = mongoose;
 const { ObjectId } = mongoose.Types;
 const User = require("./User");
 
@@ -56,18 +55,21 @@ const thoughtData = [
   {
     thoughtText: "This is the first thought.",
     username: "Admin",
-    reactions: [
-      { reactionBody: "Nice thought!", username: "user3" },
-      { reactionBody: "Interesting.", username: "user4" },
-    ],
   },
   {
     thoughtText: "Another thought here.",
     username: "plucafo",
-    reactions: [
-      { reactionBody: "Great thought!", username: "user5" },
-      { reactionBody: "Well said.", username: "user6" },
-    ],
+  },
+];
+
+const reactionData = [
+  {
+    reactionBody: "This is a test reaction.",
+    username: "test",
+  },
+  {
+    reactionBody: "This is a NEW test reaction!",
+    username: "newuser",
   },
 ];
 
@@ -75,8 +77,13 @@ Thought.find({})
   .exec()
   .then((collection) => {
     if (collection.length === 0) {
-      Thought.insertMany(thoughtData).catch((err) => console.error(err));
-      console.log("Successfully seeded Thought and Reaction data!");
+      Thought.create({
+        thoughtText: "This a test thought.",
+        username: "Admin",
+        reactions: reactionData,
+      })
+        .then(() => console.log('Successfully seeded Thought and Reaction data!'))
+        .catch((err) => console.log(err));
     }
   });
 
