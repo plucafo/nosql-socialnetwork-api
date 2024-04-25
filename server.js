@@ -48,7 +48,21 @@ app.post('/api/users', async (req, res) => {
 });
 
 // Delete user by id
-
+app.delete('/api/users/:id', async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const result = await User.findOneAndDelete({ _id: userId });
+        if (result) {
+            res.status(200).json(result);
+            console.log(`User deleted successfully: ${result}`);
+        } else {
+            res.status(404).json({ message: 'User not found.' });
+        }
+    } catch (err) {
+        console.error('Error deleting user: ', err);
+        res.status(500).json({ message: 'Something went wrong.' });
+    }
+});
 
 // ************************ THOUGHT ROUTES ************************
 // Find all thoughts
