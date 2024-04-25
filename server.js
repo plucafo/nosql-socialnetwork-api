@@ -10,7 +10,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 // ************************ USER ROUTES ************************
 // Find all users
-app.get("/all-users", async (req, res) => {
+app.get("/api/users", async (req, res) => {
   try {
     const result = await User.find({});
     res.status(200).json(result);
@@ -20,7 +20,7 @@ app.get("/all-users", async (req, res) => {
 });
 
 // Find one user
-app.get("/user/:id", async (req, res) => {
+app.get("/api/users/:id", async (req, res) => {
   try {
     const userId = req.params.id;
     const result = await User.findOne({ _id: userId });
@@ -30,9 +30,29 @@ app.get("/user/:id", async (req, res) => {
   }
 });
 
+// Create new user
+app.post('/api/users', async (req, res) => {
+    try {
+        const newUser = new User({ username: req.body.username, email: req.body.email });
+        await newUser.save();
+        res.status(201).json(newUser); // HTTP status 201 for "Created"
+    } catch (err) {
+        // Error handling if username already exists
+        if (err.code === 11000) {
+            res.status(400).json({ message: 'Username already exists.' });
+        } else {
+            console.error('Error creating user:', err);
+            res.status(500).json({ message: 'Something went wrong.' });
+        }
+    }
+});
+
+// Delete user by id
+
+
 // ************************ THOUGHT ROUTES ************************
 // Find all thoughts
-app.get("/all-thoughts", async (req, res) => {
+app.get("/api/thoughts", async (req, res) => {
     try {
       const result = await Thought.find({});
       res.status(200).json(result);
@@ -42,7 +62,7 @@ app.get("/all-thoughts", async (req, res) => {
   });
 
 // Find thought by id
-app.get("/thought/:id", async (req, res) => {
+app.get("/api/thoughts/:id", async (req, res) => {
     try {
       const thoughtId = req.params.id;
       const result = await Thought.findOne({ _id: thoughtId });
