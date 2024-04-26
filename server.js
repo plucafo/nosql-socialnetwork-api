@@ -92,12 +92,19 @@ app.get("/api/thoughts/:id", async (req, res) => {
 // Create new thought
 app.post("/api/thoughts", async (req, res) => {
   try {
+    // Save the new thought
     const newThought = new Thought({
       thoughtText: req.body.thoughtText,
       username: req.body.username,
     });
     await newThought.save();
-    res.status(201).json(newThought); // HTTP status 201 for "Created"
+    console.log(newThought);
+    // Update the user array of thoughts by pushing the new thought _id
+    const updatedUser = await User.findOneAndUpdate({ _id: req.body.userId }, { $push: { thoughts: newThought._id }}, { new: true } );
+    if (!updatedUser) {
+        return res.status(404).json({ message: "Updated user not found" });
+    }
+    res.status(201).json({newThought, updatedUser}); // HTTP status 201 for "Created"
   } catch (err) {
     // Error handling if thought already exists
     console.error("Error creating thought:", err);
@@ -122,8 +129,7 @@ app.delete("/api/thoughts/:id", async (req, res) => {
     }
   });
 
-// ************************* REACTION ROUTES ************************
-// Create reaction
+// ************************ REACTION ROUTES ************************
 // Create new reaction for a thought
 app.post("/api/thoughts/:thoughtId/reactions", async (req, res) => {
     try {

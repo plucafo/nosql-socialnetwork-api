@@ -51,14 +51,22 @@ const thoughtSchema = new mongoose.Schema({
 const Thought = mongoose.model("Thought", thoughtSchema);
 
 // Seed data for Thoughts and Reactions
-const thoughtData = [
+const thoughtReactionData = [
   {
     thoughtText: "This is the first thought.",
     username: "Admin",
+    reaction: {
+      reactionBody: "This is a test reaction!",
+      username: "Admin",
+    },
   },
   {
     thoughtText: "Another thought here.",
     username: "plucafo",
+    reaction: {
+      reactionBody: "This is a NEW test reaction!",
+      username: "plucafo",
+    },
   },
 ];
 
