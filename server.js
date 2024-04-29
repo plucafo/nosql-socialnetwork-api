@@ -23,7 +23,7 @@ app.get("/api/users", async (req, res) => {
 app.get("/api/users/:id", async (req, res) => {
   try {
     const userId = req.params.id;
-    const result = await User.findOne({ _id: userId });
+    const result = await User.findOne({ _id: userId }).populate("thoughts").populate("friends");
     res.status(200).json(result);
   } catch (err) {
     console.error(err);
@@ -133,6 +133,29 @@ app.post("/api/thoughts", async (req, res) => {
     res.status(500).json({ message: "Something went wrong." });
   }
 });
+
+// Update thought
+app.put("/api/thoughts/:id", async (req, res) => {
+    try {
+      const thoughtId = req.params.id; // Get the thoughtId from route parameters
+  
+      // Update thought fields based on JSON data from request body
+      const updatedThought = await Thought.findOneAndUpdate(
+        { _id: thoughtId },
+        { $set: req.body }, // Use $set to update fields based on request body
+        { new: true }
+      );
+  
+      if (!updatedThought) {
+        return res.status(404).json({ message: "Thought not found" });
+      }
+  
+      res.status(200).json({ message: "Thought updated successfully", updatedThought });
+    } catch (err) {
+      console.error("Error updating thought:", err);
+      res.status(500).json({ message: "Something went wrong." });
+    }
+  });
 
 // Delete thought by id
 app.delete("/api/thoughts/:id", async (req, res) => {
