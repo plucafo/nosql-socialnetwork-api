@@ -292,6 +292,29 @@ app.delete("/api/users/:userId/friends/:friendId", async (req, res) => {
     }
   });
 
+// Delete all friends of a user
+app.delete("/api/users/:userId/friends", async (req, res) => {
+    try {
+      const userId = req.params.userId; // Get the userId from route parameters
+  
+      // Update the user's friends array with an empty array to delete all friends
+      const updatedUser = await User.findOneAndUpdate(
+        { _id: userId },
+        { $set: { friends: [] } }, // Set friends array to empty array
+        { new: true }
+      );
+  
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+  
+      res.status(200).json({ message: "All friends deleted successfully", updatedUser });
+    } catch (err) {
+      console.error("Error deleting all friends:", err);
+      res.status(500).json({ message: "Something went wrong." });
+    }
+  });
+
 // Start the server once the database connection is open
 db.once("open", () => {
   app.listen(PORT, () => {
