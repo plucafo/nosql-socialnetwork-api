@@ -12,7 +12,7 @@ app.use(express.json());
 // Find all users
 app.get("/api/users", async (req, res) => {
   try {
-    const result = await User.find({}).populate("thoughts").exec();
+    const result = await User.find({}).populate("thoughts").populate("friends").exec();
     res.status(200).json(result);
   } catch (err) {
     res.status(500).json({ message: "something went wrong" });
@@ -106,7 +106,6 @@ app.post("/api/thoughts", async (req, res) => {
     }
     res.status(201).json({newThought, updatedUser}); // HTTP status 201 for "Created"
   } catch (err) {
-    // Error handling if thought already exists
     console.error("Error creating thought:", err);
     res.status(500).json({ message: "Something went wrong." });
   }
@@ -192,6 +191,61 @@ app.delete("/api/thoughts/:thoughtId/reactions/:reactionId", async (req, res) =>
     }
 });
   
+// ************************ FRIEND ROUTES ************************
+// Add friend
+app.post("/api/add-friend", async (req, res) => {
+    try {
+      const friendId = req.body.friendId; // Assuming you're passing the friend's ID
+  
+      // Check if the friendId exists in the User collection
+      const friend = await User.findById(friendId);
+      if (!friend) {
+        return res.status(404).json({ message: "Friend not found" });
+      }
+  
+      // Update the user's friends array with the friend's ID
+      const updatedUser = await User.findOneAndUpdate(
+        { _id: req.body.userId },
+        { $addToSet: { friends: friendId } }, // Using $addToSet to avoid duplicates
+        { new: true }
+      );
+  
+      if (!updatedUser) {
+        return res.status(404).json({ message: "Updated user not found" });
+      }
+      
+      res.status(201).json({ friend, updatedUser });
+      res.json({ message: "Friend added successfully!"});
+    } catch (err) {
+      console.error("Error adding friend:", err);
+      res.status(500).json({ message: "Something went wrong." });
+    }
+  });
+  
+// Delete friend
+app.delete("/api/users/:userId/friends/:friendId", async (req, res) => {
+    try {
+      const userId = req.params.userId; // Get the userId from route parameters
+      const friendId = req.params.friendId; // Get the friendId from route parameters
+  
+      // Update the user's friends array by removing the friend's ID
+      const updatedUser = await User.findOneAndUpdate(
+        { _id: userId },
+        { $pull: { friends: friendId } }, // Using $pull to remove the friend's ID
+        { new: true }
+      );
+  
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+  
+      res.status(200).json({ message: "Friend deleted successfully", updatedUser });
+    } catch (err) {
+      console.error("Error deleting friend:", err);
+      res.status(500).json({ message: "Something went wrong." });
+    }
+  });
+
 // Start the server once the database connection is open
 db.once("open", () => {
   app.listen(PORT, () => {
