@@ -50,6 +50,29 @@ app.post("/api/users", async (req, res) => {
   }
 });
 
+// Update user by id
+app.put("/api/users/:id", async (req, res) => {
+    try {
+      const userId = req.params.id; // Get the userId from route parameters
+  
+      // Update user fields based on JSON data from request body
+      const updatedUser = await User.findOneAndUpdate(
+        { _id: userId },
+        { $set: req.body }, // Use $set to update fields based on request body
+        { new: true }
+      );
+  
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+  
+      res.status(200).json({ message: "User updated successfully", updatedUser });
+    } catch (err) {
+      console.error("Error updating user:", err);
+      res.status(500).json({ message: "Something went wrong." });
+    }
+  });
+
 // Delete user by id
 app.delete("/api/users/:id", async (req, res) => {
   try {
